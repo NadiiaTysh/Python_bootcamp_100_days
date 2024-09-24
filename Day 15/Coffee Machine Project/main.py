@@ -34,7 +34,7 @@ machine_is_on = True
 resources_are_sufficient = True
 try_again = True
 transaction_is_successful = False
-money_collected = 0
+money_collected = 0.00
 payed_money = 0
 beverage_selected = ""
 
@@ -54,19 +54,19 @@ def show_report(resource, money):
     print(f"Water: {resource['water']}ml\n"
           f"Milk: {resource['milk']}ml\n"
           f"Coffee: {resource['coffee']}g\n"
-          f"Money: {money}")
+          f"Money: ${money}")
 
 def check_resources_are_sufficient(available, requested):
     """takes available and requested resources and returns True if they are sufficient and False if not"""
     is_sufficient = True
     if requested.get("water") > available.get("water"):
-        print("Sorry there is not enough water.”")
+        print("Sorry there is not enough water.")
         is_sufficient = False
     if (not requested.get("milk") is None) and (requested.get("milk") > available.get("milk")):
-        print("Sorry there is not enough milk.”")
+        print("Sorry there is not enough milk.")
         is_sufficient = False
     if requested.get("coffee") > available.get("coffee"):
-        print("Sorry there is not enough coffee.”")
+        print("Sorry there is not enough coffee.")
         is_sufficient = False
     return is_sufficient
 
@@ -76,7 +76,7 @@ def process_coins(quarters, dimes, nickles, pennies):
     dime_value = 0.10
     nickle_value = 0.05
     pennie_value = 0.01
-    return quarters*quarter_value + dimes*dime_value + nickles*nickle_value + pennies*pennie_value
+    return round(quarters*quarter_value + dimes*dime_value + nickles*nickle_value + pennies*pennie_value, 2)
 
 def deduct_ingredients(available, requested):
     """takes available and requested resources, deducts and returns what left"""
@@ -86,7 +86,7 @@ def deduct_ingredients(available, requested):
         available["milk"] -= requested.get("milk")
     return available
 
-while machine_is_on and try_again:
+while machine_is_on:
     # TODO 1 Prompt user by asking “What would you like? (espresso/latte/cappuccino):”
     beverage_selected = ask_for_beverage()
 
@@ -98,13 +98,12 @@ while machine_is_on and try_again:
         show_report(resources, money_collected)
     elif beverage_selected == "invalid":
         continue
-    else:
-        try_again = False
-else:
-    if machine_is_on and resources_are_sufficient:
+    elif machine_is_on and resources_are_sufficient:
         # TODO 4 Check resources sufficient?
         resources_are_sufficient = check_resources_are_sufficient(resources, MENU.get(beverage_selected).get("ingredients"))
 
+        if not resources_are_sufficient:
+            break
         # TODO 5 Process coins.
         print("Please insert coins.")
         quarters_inserted = int(input("how many quarters?:" ))
@@ -116,9 +115,9 @@ else:
         # TODO 6 Check transaction successful?
         beverage_selected_cost = MENU.get(beverage_selected).get("cost")
         if payed_money >= beverage_selected_cost:
-            money_collected += payed_money
+            money_collected += beverage_selected_cost
             if payed_money > beverage_selected_cost:
-                print(f"Here is ${payed_money-beverage_selected_cost} dollars in change.")
+                print(f"Here is ${round(payed_money - beverage_selected_cost, 2)} dollars in change.")
             transaction_is_successful = True
         else:
             print(f"Sorry that's not enough money - ${payed_money}. Money refunded.")
